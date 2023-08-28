@@ -1,11 +1,4 @@
 
-// optional https://www.cyberciti.biz/faq/how-to-install-docker-on-amazon-linux-2/
-# Add group membership for the default ec2-user so you can run all docker commands without using the sudo command:
-# sudo usermod -a -G docker ec2-user
-# id ec2-user
-# # Reload a Linux user's group assignments to docker w/o logout
-# newgrp docker
-
 
 terraform {
   required_version = ">= 0.11.0"
@@ -27,7 +20,6 @@ resource "aws_key_pair" "terraform_ec2_key" {
 resource "aws_security_group" "nats_sg" {
   name_prefix = "nats-sg-"
   description = "Allow nats inbound traffic" 
-//  vpc_id = aws_vpc.nats_vpc.id
 
   # Allow NATS ports (4222, 6222, 8222) from specific IPs
    ingress {
@@ -36,6 +28,20 @@ resource "aws_security_group" "nats_sg" {
     protocol  = "tcp"
     cidr_blocks = ["0.0.0.0/0"]      
   }
+   ingress {
+    from_port = 1000
+    to_port   = 1000
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]      
+  }
+  ingress {
+    from_port = 3000
+    to_port   = 3000
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]      
+  }
+
+
    ingress {
     from_port = 22
     to_port   = 22
@@ -110,11 +116,12 @@ resource "aws_instance" "nats_ec2_1" {
              
               sudo docker network create --driver overlay nats-cluster-example
               sudo docker service create --network nats-cluster-example --name nats-cluster-node-1 nats:1.0.0 -cluster nats://0.0.0.0:6222 -DV
-              docker service create --network nats-cluster-example --name nats-cluster-node-2 nats:1.0.0 -cluster nats://0.0.0.0:6222 -routes nats://nats-cluster-node-1:6222 -DV
+              sudo docker service create --network nats-cluster-example --name nats-cluster-node-2 nats:1.0.0 -cluster nats://0.0.0.0:6222 -routes nats://nats-cluster-node-1:6222 -DV
+              sudo docker service create --network nats-cluster-example --name nats-cluster-node-3 nats:1.0.0 -cluster nats://0.0.0.0:6222 -routes nats://nats-cluster-node-1:6222 -DV
 
               # exposing the ports for external access -- should be tested executed manually  ---
               sudo docker service update --publish-add 1000:4222 nats-cluster-node-1
-              sudo docker service update --publish-add 2000:4222 nats-cluster-node-1
+              sudo docker service update --publish-add 3000:4222 nats-cluster-node-3 
 
               EOF
   
@@ -133,7 +140,7 @@ resource "aws_instance" "nats_ec2_1" {
 resource "aws_instance" "nats_ec2_2" {
   ami           = "${var.ami_id}"
   instance_type = "${var.instance_type}"
-  availability_zone = "${var.aws_region}a"
+  availability_zone = "${var.aws_region}b"
   key_name = aws_key_pair.terraform_ec2_key.key_name
   vpc_security_group_ids = [aws_security_group.nats_sg.id]
  

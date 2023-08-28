@@ -1,67 +1,105 @@
-# nats_cluster
+# nats cluster 
+
 This repo is responsible for deploying a cluster of 3 NATS servers
 Using Terraform and AWS cloud EC2 instances . 
+Prepared by Oren Evan
 
-## Bonus -- Automate service discovery method 
-Was achived using docker swarm capabilities See "Appendix Docker Swarm capabilities"
+## Table of Contents
 
-## Test script 
-Test script that validates that the service is acting properly by trying to subscribe to a subject on one node and publish to the same subject on another node.
-### Excuting test_messages docker for nats operation 
- testmessages/run_test_messages_docker.py 
-### Excuting Python test script for nats operation 
-  sudo yum install pip3
-  pip3 install --no-cache-dir -r requirements.txt
-  python3 testmessages/test_messages.py <nats://nats_server_1:port> <nats://nats_server_2:port>
-  ports are exposed to 1000 and 2000 
+- [Introduction](#introduction)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [Acknowledgements](#acknowledgements)
 
-# Setting terraform profile 
+## Introduction
 
-## set aws profile with aws credentials under ~/.aws/credentials 
+Cluster of NATS servers raised using Terraform and AWS cloud EC2 instances ,
+Additionaly wanted to achieve service discovery.
+
+## Features
+
+List the key features of the project:
+
+- Service Discovery: Achieved using Docker Swarm functionality 
+  Swarm manager nodes assign each service in the swarm a unique DNS name and load balance running containers. .
+- Docker Swarm Multipile Nodes: Master(nats_ec2_1) and Node(nats_ec2_1) are created 
+- AWS Use of availability zones so each swarm node is running on a different zone to achieve HA
+- Etcd Server:  Used as a key database 
+
+## Getting Started
+
+Instructions for setting up the project locally.
+
+### Prerequisites
+
+- Terraform 
+- AWS Credentials
+  set aws profile with aws credentials under ~/.aws/credentials 
   make sure to add 
  [terraform_aws_profile]
   aws_access_key_id =  AWS_ACCESS_KEY_ID
   aws_secret_access_key =  AWS_SECRET_KEY
- 
-## Optional set SSH key for ssh connectivity to mahines  
+- Docker (Optional - only for testing ) 
+- Python3 (Optional- only for testing )
 
-## under variables.tf paste the public key   
-ssh-keygen -t rsa -b 4096
-cat ~/.ssh/id_rsa.pub
-## connecting with ssh 
-ssh -i ~/.ssh/id_rsa ec2-user@ec2-3-86-91-195.compute-1.amazonaws.com 
 
-# Running terraform to provision the resources 
-terraform init 
+### Installation
 
-terraform plan  
+Step-by-step instructions to install and configure the project.
 
-terraform apply --auto-approve   
+1. Clone the repository: `[repository https://github.com/orenevan/nats_cluster.git]`
+2. Navigate to the project directory: `cd nats_cluster`
+3. Install dependencies: `npm install` or `pip install -r requirements.txt`
+4. terraform init 
+4. terraform plan      check out that plan looks ok
+5. terraform apply     
+6. For testing navigate to test_messages directory 
+   Test script that validates that the service is acting properly by trying to subscribe to a subject on one node and publish to the same subject on another node.
+   - testmessages/run_test_messages_docker.py: Excuting test_messages docker for nats operation    
+   - Excuting Python test script for nats operation 
+   - 
+     sudo yum install pip3
+   - 
+     pip3 install --no-cache-dir -r requirements.txt
+   -   
+     python3 testmessages/test_messages.py <nats://nats_server_1:port1> <nats://nats_server_2:port2>
+   - 
+     default ports are exposed port1=1000 and port2=3000
 
-# Cluster operations 
 
-## on nats_ec2_1 the swarm master can issue the following commands
-sudo docker node ls
-sudo docker service ls
-sudo docker service nats-cluster-node-1 ps
-sudo docker service ps nats-cluster-node-1 
-sudo docker service ps nats-cluster-node-2 
+## Usage
 
-## scaling the server 
+You can get the dns name for nats_server_1 identical to nats_server_1 from 
+nats_ec2_1_public_dns under Terraform Outputs:
+
+## Configuration
+
+### on nats_ec2_1 the swarm master can issue the following commands
+- sudo docker node ls
+- sudo docker service ls
+- sudo docker service ps nats-cluster-node-1 
+- sudo docker service ps nats-cluster-node-2 
+
+### scaling the server 
 sudo docker service scale  nats-cluster-node-2=2 
 
-## How to publish the port 
+### How to update the published port 
 sudo docker service update --publish-add 4222 nats-cluster-node-1
- 
-# Appendix Docker Swarm capabilities 
-  for full guide refer to https://docs.docker.com/engine/swarm/ 
-  docker node ls
-  sudo docker service ls
 
-##  Service discovery: 
- Swarm manager nodes assign each service in the swarm a unique DNS name and load balance running containers. 
- You can query every container running in the swarm through a DNS server embedded in the swarm.
+## Contributing
 
-## Load balancing:
- You can expose the ports for services to an external load balancer. 
- Internally, the swarm lets you specify how to distribute service containers between nodes.
+Guidelines for contributing to the project. Include information about how to submit pull requests, report issues, and code standards.
+
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature/your-feature-name`
+3. Make your changes and commit them: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Create a pull request
+
+
+![Project Screenshot](/images/screenshot.png)
