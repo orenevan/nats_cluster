@@ -10,7 +10,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the local script to the container
-COPY test.py .
+COPY test_messages.py .
 
 # Command to run your script
-CMD ["python", "test_messages.py"]
+ENTRYPOINT ["python3", "test_messages.py"]

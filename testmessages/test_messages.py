@@ -1,6 +1,8 @@
 import argparse
 import asyncio
 from nats.aio.client import Client as NATS
+import sys
+import socket 
 
 async def subscribe_handler(msg):
     print(f"Received message: {msg.data.decode()}")
@@ -34,13 +36,21 @@ async def main():
 
         await asyncio.sleep(1)
 
+    except socket.gaierror as e:
+        print(f"SocketError: {e}")
+        sys.exit(1)      
+
     except Exception as e:
         print(f"Error: {e}")
+        print("PREPARE TO EXIT")
+        sys.exit(1) 
+        print("WAS SUPPPOSED TO EXIT")
     finally:
         await nc_node1.close()
         await nc_node2.close()
         print("Connections closed")
 
 if __name__ == "__main__":
+    print("Starting to  testing connections")    
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
