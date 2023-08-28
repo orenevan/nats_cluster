@@ -108,10 +108,14 @@ resource "aws_instance" "nats_ec2_1" {
               # register the service at etcd server     
               /tmp/etcd-download-test/etcdctl --endpoints=http://${aws_instance.etcd_server.private_ip}:2379 put swarm_join_command "sudo $SWARM_JOIN_COMMAND"                  
              
-              # Run NATS Docker container
-              sudo docker run -d --name nats-server \
-                  -p 4222:4222 -p 6222:6222 -p 8222:8222 \
-                  nats:latest  -p 4222 -cluster nats://localhost:4248 --cluster_name test-cluster -D             
+              sudo docker network create --driver overlay nats-cluster-example
+              sudo docker service create --network nats-cluster-example --name nats-cluster-node-1 nats:1.0.0 -cluster nats://0.0.0.0:6222 -DV
+              docker service create --network nats-cluster-example --name nats-cluster-node-2 nats:1.0.0 -cluster nats://0.0.0.0:6222 -routes nats://nats-cluster-node-1:6222 -DV
+
+              # exposing the ports for external access -- should be tested executed manually  ---
+              sudo docker service update --publish-add 1000:4222 nats-cluster-node-1
+              sudo docker service update --publish-add 2000:4222 nats-cluster-node-1
+
               EOF
   
   tags = {
@@ -153,12 +157,7 @@ resource "aws_instance" "nats_ec2_2" {
              
               # join docker swarm 
               `/tmp/etcd-download-test/etcdctl --endpoints=http://${aws_instance.etcd_server.private_ip}:2379 get swarm_join_command | tail -1`                  
-             
-
-              # Run NATS Docker container
-              sudo docker run -d --name nats-server \
-                  -p 4222:4222 -p 6222:6222 -p 8222:8222 \
-                  nats:latest  -p 5222 -cluster nats://localhost:5248 -routes nats://${aws_instance.nats_ec2_1.private_ip}:4248 --cluster_name test-cluster              
+              
               EOF
 
 
@@ -237,17 +236,6 @@ resource "aws_instance" "etcd_server" {
   }
 
 
-# docker swarm commands  for full guide refer to https://docs.docker.com/engine/swarm/ 
-# docker node ls
-# sudo docker service ls
-#
-# Service discovery: 
-# Swarm manager nodes assign each service in the swarm a unique DNS name and load balance running containers. 
-# You can query every container running in the swarm through a DNS server embedded in the swarm.
-
-#Load balancing:
-# You can expose the ports for services to an external load balancer. 
-# Internally, the swarm lets you specify how to distribute service containers between nodes.
 
 
 # sudo yum install python3-pip

@@ -10,8 +10,17 @@ Test script that validates that the service is acting properly by trying to subs
 ### Excuting test_messages docker for nats operation 
  testmessages/run_test_messages_docker.py 
 ### Excuting Python test script for nats operation 
-
-
+  sudo yum install pip3
+  pip3 install --no-cache-dir -r requirements.txt
+   python3 test_messages.py nats://ec2-3-86-91-195.compute-1.amazonaws.com:1000 nats://ec2-3-86-91-195.compute-1.amazonaws.com:2000
+Connected to Node 1: nats://ec2-3-86-91-195.compute-1.amazonaws.com:1000
+Connected to Node 2: nats://ec2-3-86-91-195.compute-1.amazonaws.com:2000
+Subscribed to subject on Node 1
+Published message to subject on Node 1
+Published message to subject on Node 2
+Received message: Hello from Node 1!
+Received message: Hello from Node 2!
+Connections closed
 
 # Setting terraform profile 
 
@@ -23,9 +32,11 @@ Test script that validates that the service is acting properly by trying to subs
  
 ## Optional set SSH key for ssh connectivity to mahines  
 
-## under variable.tf  modify  
+## under variables.tf paste the public key   
 ssh-keygen -t rsa -b 4096
 cat ~/.ssh/id_rsa.pub
+## connecting with ssh 
+ssh -i ~/.ssh/id_rsa ec2-user@ec2-3-86-91-195.compute-1.amazonaws.com 
 
 # Running terraform to provision the resources 
 terraform init 
