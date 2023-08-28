@@ -14,7 +14,6 @@ Prepared by Oren Evan
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Contributing](#contributing)
-- [Acknowledgements](#acknowledgements)
 
 ## Introduction
 
@@ -54,8 +53,7 @@ Step-by-step instructions to install and configure the project.
 
 1. Clone the repository: `[repository https://github.com/orenevan/nats_cluster.git]`
 2. Navigate to the project directory: `cd nats_cluster`
-3. Install dependencies: `npm install` or `pip install -r requirements.txt`
-4. terraform init 
+3. terraform init 
 4. terraform plan      check out that plan looks ok
 5. terraform apply     
 6. For testing navigate to test_messages directory 
