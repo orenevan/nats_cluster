@@ -5,9 +5,10 @@
   make sure to add 
  [terraform_aws_profile]
   aws_access_key_id =  AWS_ACCESS_KEY_ID
-  aws_secret_access_key =  AWS_SECRET_KEY 
-
-# under variable.tf  modify  
+  aws_secret_access_key =  AWS_SECRET_KEY
+ 
+# Optional set SSH key for ssh connectivity to mahines  
+## under variable.tf  modify  
 ssh-keygen -t rsa -b 4096
 cat ~/.ssh/id_rsa.pub
 
