@@ -3,7 +3,7 @@ This repo is responsible for deploying a cluster of 3 NATS servers
 Using Terraform and AWS cloud EC2 instances . 
 
 ## Bonus -- Automate service discovery method 
-Was achived using docker swarm capabilities 
+Was achived using docker swarm capabilities See "Appendix Docker Swarm capabilities"
 
 ## Test script 
 Test script that validates that the service is acting properly by trying to subscribe to a subject on one node and publish to the same subject on another node.
@@ -12,15 +12,8 @@ Test script that validates that the service is acting properly by trying to subs
 ### Excuting Python test script for nats operation 
   sudo yum install pip3
   pip3 install --no-cache-dir -r requirements.txt
-   python3 test_messages.py nats://ec2-3-86-91-195.compute-1.amazonaws.com:1000 nats://ec2-3-86-91-195.compute-1.amazonaws.com:2000
-Connected to Node 1: nats://ec2-3-86-91-195.compute-1.amazonaws.com:1000
-Connected to Node 2: nats://ec2-3-86-91-195.compute-1.amazonaws.com:2000
-Subscribed to subject on Node 1
-Published message to subject on Node 1
-Published message to subject on Node 2
-Received message: Hello from Node 1!
-Received message: Hello from Node 2!
-Connections closed
+  python3 testmessages/test_messages.py <nats://nats_server_1:port> <nats://nats_server_2:port>
+  ports are exposed to 1000 and 2000 
 
 # Setting terraform profile 
 
